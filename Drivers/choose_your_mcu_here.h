@@ -1,0 +1,16 @@
+//#define STM32F030x6
+//#define STM32F030x8
+//#define STM32F031x6
+//#define STM32F038xx
+//#define STM32F042x6
+//#define STM32F048x6
+//#define STM32F051x8
+//#define STM32F058xx
+//#define STM32F070x6
+//#define STM32F070xB
+//#define STM32F071xB
+#define STM32F072xB
+//#define STM32F078xx
+//#define STM32F030xC
+//#define STM32F091xC
+//#define STM32F098xx
