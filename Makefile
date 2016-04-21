@@ -81,17 +81,23 @@ all: lib proj
 lib:
 	$(MAKE) -C $(CUBE_DRIVERS_DIR)
 
-proj: 	$(PROJ_NAME).elf
+proj: $(PROJ_NAME).elf $(PROJ_NAME).hex $(PROJ_NAME).bin $(PROJ_NAME).lst
 
 $(PROJ_NAME).elf: $(SRCS)
 	$(CC) $(CFLAGS) $^ -o $@ -L$(CUBE_DRIVERS_DIR) -lstm32f0 -L$(LDSCRIPT_INC) -Tstm32f0.ld
-	$(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
-	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
-	$(OBJDUMP) -St $(PROJ_NAME).elf >$(PROJ_NAME).lst
 	$(SIZE) $(PROJ_NAME).elf
 
+$(PROJ_NAME).bin: $(PROJ_NAME).elf
+	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
+
+$(PROJ_NAME).hex: $(PROJ_NAME).elf
+	$(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
+
+$(PROJ_NAME).lst: $(PROJ_NAME).elf
+	$(OBJDUMP) -St $(PROJ_NAME).elf >$(PROJ_NAME).lst
+
 program: $(PROJ_NAME).bin
-	openocd -f $(OPENOCD_BOARD_DIR)/stm32f0discovery.cfg -f $(OPENOCD_PROC_FILE) -c "stm_flash `pwd`/$(PROJ_NAME).bin" -c shutdown
+	openocd -f $(OPENOCD_BOARD_DIR)/stm32f0discovery.cfg -f $(OPENOCD_PROC_FILE) -c "stm_flash $(PROJ_NAME).bin" -c shutdown
 
 clean:
 	find ./ -name '*~' | xargs rm -f
@@ -104,3 +110,7 @@ clean:
 
 reallyclean: clean
 	$(MAKE) -C $(CUBE_DRIVERS_DIR) clean
+
+debug: $(PROJ_NAME).elf
+	st-util &
+	arm-none-eabi-insight $^ &
